@@ -15,6 +15,10 @@ public class CodigoAcceso {
     @Column(name = "id_codigo_acceso")
     private Integer idCodigoAcceso;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_seccion", nullable = false)
+    private Seccion seccion;
+
     @Column(nullable = false, length = 6, unique = true)
     private String codigo;
 
