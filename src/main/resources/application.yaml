@@ -37,6 +37,9 @@ app:
   openapi:
     dev-url: ${ENCUESTAS_API_DEV_URL:http://localhost:${PORT:8080}${SERVER_SERVLET_CONTEXT_PATH:/}}
     prod-url: ${ENCUESTAS_API_PROD_URL:https://api.bcr.gob.sv/inst}
+  security:
+    username: ${APP_SECURITY_USERNAME:admin}
+    password: ${APP_SECURITY_PASSWORD:admin123}
 
   cors:
     allowed-origins: ${ALLOWED_ORIGINS:*}
