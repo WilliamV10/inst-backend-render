@@ -3,6 +3,8 @@ package sv.gob.bcr.onec.inst.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
 import sv.gob.bcr.onec.inst.dto.request.CodigoAccesoCreateRequest;
 import sv.gob.bcr.onec.inst.dto.request.CodigoAccesoUpdateRequest;
 import sv.gob.bcr.onec.inst.dto.response.CodigoAccesoResponse;
@@ -22,6 +24,15 @@ public class CodigoAccesoServiceImpl implements CodigoAccesoService {
 
     private final CodigoAccesoRepository repository;
     private final SeccionRepository seccionRepository;
+    private final SecureRandom random = new SecureRandom();
+
+    private String generarCodigoUnico() {
+        String codigo;
+        do {
+            codigo = String.format("%06d", random.nextInt(1_000_000));
+        } while (repository.existsByCodigo(codigo));
+        return codigo;
+    }
 
     private CodigoAccesoResponse toResponse(CodigoAcceso obj) {
         return CodigoAccesoResponse.builder()
@@ -35,14 +46,14 @@ public class CodigoAccesoServiceImpl implements CodigoAccesoService {
     @Override
     @Transactional
     public CodigoAccesoResponse create(CodigoAccesoCreateRequest request) {
-        String codigo = (request.codigo() != null) ? request.codigo() : repository.generarCodigo();
+        String codigo = (request.codigo() != null) ? request.codigo() : generarCodigoUnico();
 
         if (repository.existsByCodigo(codigo)) {
             throw new ConflictException("Ya existe un código de acceso con el valor: " + codigo);
         }
 
         Seccion seccion = seccionRepository.findById(request.idSeccion())
-                .orElseThrow(() -> new NotFoundException("Secci\u00f3n no encontrada. id=" + request.idSeccion()));
+                .orElseThrow(() -> new NotFoundException("Sección no encontrada. id=" + request.idSeccion()));
 
         CodigoAcceso entity = CodigoAcceso.builder()
                 .seccion(seccion)
@@ -75,7 +86,7 @@ public class CodigoAccesoServiceImpl implements CodigoAccesoService {
 
         if (request.idSeccion() != null) {
             Seccion seccion = seccionRepository.findById(request.idSeccion())
-                    .orElseThrow(() -> new NotFoundException("Secci\u00f3n no encontrada. id=" + request.idSeccion()));
+                    .orElseThrow(() -> new NotFoundException("Sección no encontrada. id=" + request.idSeccion()));
             entity.setSeccion(seccion);
         }
 
