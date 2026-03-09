@@ -1,0 +1,65 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: ${HIBERNATE_SHOW_SQL:false}
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: ${DB_SCHEMA}
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
+        highlight_sql: ${HIBERNATE_HIGHLIGHT_SQL:false}
+
+  datasource:
+    hikari:
+      maximum-pool-size: ${DB_HIKARI_MAX_POOL_SIZE:10}
+      minimum-idle: ${DB_HIKARI_MIN_IDLE:5}
+      connection-timeout: ${DB_HIKARI_CONNECTION_TIMEOUT:30000}
+      idle-timeout: ${DB_HIKARI_IDLE_TIMEOUT:600000}
+      max-lifetime: ${DB_HIKARI_MAX_LIFETIME:1800000}
+      pool-name: ${DB_HIKARI_POOL_NAME:InstHikariCP}
+
+# --- CONFIGURACIÓN DE SWAGGER / OPENAPI ---
+springdoc:
+  api-docs:
+    path: ${SWAGGER_DOCS_PATH:/api-docs}
+  swagger-ui:
+    path: ${SWAGGER_PATH:/swagger-ui.html} # ruta: http://localhost:8082/encuestas/swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+# --- CONFIGURACIÓN PERSONALIZADA ---
+app:
+  openapi:
+    dev-url: ${INST_API_DEV_URL:http://localhost:${PORT:8080}${SERVER_SERVLET_CONTEXT_PATH:/}}
+    prod-url: ${INST_API_PROD_URL:https://api.bcr.gob.sv/inst}
+
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:*}
+    allowed-methods: ${ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+
+# --- CONFIGURACIÓN DEL SERVIDOR ---
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: ${SERVER_SERVLET_CONTEXT_PATH:/}
+
+# --- CONFIGURACIÓN DE ACTUATOR ---
+#http://localhost:8082/encuestas/actuator/health
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_EXPOSE_ENDPOINTS:health,info}
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_SHOW_DETAILS:never}
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true

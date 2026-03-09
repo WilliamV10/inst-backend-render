@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:\\\\Users\\\\inoutmarvin\\\\OneDrive - bcr.gob.sv\\\\Documentos\\\\PROYECTO\\\\DESARROLLO\\\\sie-backend\\\\tmp-diccionario.postman_collection.json\":*)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

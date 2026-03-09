@@ -1,0 +1,29 @@
+server:
+  port: ${PORT}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      # En producción solemos aumentar el pool según la carga esperada
+      maximum-pool-size: ${DB_HIKARI_MAX_POOL_SIZE:20}
+      minimum-idle: ${DB_HIKARI_MIN_IDLE:10}
+
+# --- CONFIGURACIÓN DE LOGS (PRODUCCIÓN) ---
+logging:
+  level:
+    # Nivel más restrictivo para evitar logs innecesarios
+    root: WARN
+    sv.gob.bcr.onec.inst: INFO
+  file:
+    # Ruta donde se escribirá el archivo de log (viene del .env)
+    path: ${LOG_PATH:./logs/}
+    name: ${LOG_NAME:inst.log}
+  logback:
+    rollingpolicy:
+      # Tamaño máximo por archivo antes de rotar
+      max-file-size: ${LOG_MAX_SIZE:10MB}
+      # Cuántos días se guarda el historial
+      max-history: ${LOG_MAX_HISTORY:30}

@@ -1,0 +1,51 @@
+# =============================================================================
+# .dockerignore — SIE Backend
+# Excluye todo lo que NO debe entrar al contexto de build de Docker.
+# Reduce el tamaño del contexto y evita filtrar información sensible.
+# =============================================================================
+
+# ── Build de Maven (se genera DENTRO del contenedor, no del host) ─────────────
+target/
+
+# ── Archivos de entorno locales (¡NUNCA deben llegar al contenedor!) ──────────
+.env
+.env.*
+!.env.example
+
+# ── Control de versiones ──────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ── IDEs y herramientas locales ───────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.class
+
+# ── Documentación ─────────────────────────────────────────────────────────────
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+docs/
+
+# ── Logs locales ──────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Archivos de sistema operativo ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── CI/CD (no necesario dentro del contenedor) ────────────────────────────────
+.gitlab-ci.yml
+Jenkinsfile
+.circleci/
+
+# ── Docker mismo (evita loops innecesarios en el contexto) ────────────────────
+Dockerfile
+.dockerignore

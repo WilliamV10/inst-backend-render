@@ -1,0 +1,736 @@
+{
+  "info": {
+    "name": "inst-backend — Herramienta de Captura de Datos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",          "value": "http://localhost:8082/api/v1" },
+    { "key": "idCodigoAcceso",   "value": "" },
+    { "key": "idFormulario",     "value": "" },
+    { "key": "idSeccion",        "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Código de Acceso",
+      "item": [
+        {
+          "name": "Crear código (auto-generado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.collectionVariables.set('idCodigoAcceso', r.idCodigoAcceso);",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Tiene codigo', () => pm.expect(r.codigo).to.match(/^[0-9]{6}$/));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/access-codes",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-acceso-create-01" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Crear código (manual)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "var r = pm.response.json();",
+                  "pm.test('Código es 234567', () => pm.expect(r.codigo).to.eql('234567'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/access-codes",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-acceso-create-02" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"234567\",\n  \"activo\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar códigos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/access-codes",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Obtener código por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "var r = pm.response.json();",
+                  "pm.test('ID correcto', () => pm.expect(r.idCodigoAcceso).to.eql(parseInt(pm.collectionVariables.get('idCodigoAcceso'))));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/access-codes/{{idCodigoAcceso}}",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Obtener código — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/access-codes/999999",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Actualizar código (desactivar)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Activo = false', () => pm.expect(pm.response.json().activo).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/access-codes/{{idCodigoAcceso}}",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-acceso-update-01" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activo\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear código duplicado — 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/access-codes",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-App-Client", "value": "postman-test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"234567\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Formulario",
+      "item": [
+        {
+          "name": "Crear formulario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.collectionVariables.set('idFormulario', r.idFormulario);",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Código correcto', () => pm.expect(r.codigo).to.eql('FORM-001'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/forms",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-form-create-01" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"FORM-001\",\n  \"nombre\": \"Formulario de Registro\",\n  \"metadata\": {\n    \"version\": \"1.0\",\n    \"año\": 2026\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear formulario sin metadata",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Metadata es objeto', () => pm.expect(pm.response.json().metadata).to.be.an('object'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/forms",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-App-Client", "value": "postman-test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"FORM-002\",\n  \"nombre\": \"Formulario Sin Metadata\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar formularios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forms",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Obtener formulario por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('ID correcto', () => pm.expect(pm.response.json().idFormulario).to.eql(parseInt(pm.collectionVariables.get('idFormulario'))));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forms/{{idFormulario}}",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Obtener formulario — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/forms/999999",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Actualizar formulario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Nombre actualizado', () => pm.expect(pm.response.json().nombre).to.eql('Formulario de Registro — Actualizado'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/forms/{{idFormulario}}",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-form-update-01" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"FORM-001\",\n  \"nombre\": \"Formulario de Registro — Actualizado\",\n  \"metadata\": {\n    \"version\": \"1.1\",\n    \"año\": 2026\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear formulario — validación (sin nombre) — 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/forms",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-App-Client", "value": "postman-test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"FORM-ERR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear formulario duplicado — 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/forms",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-App-Client", "value": "postman-test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"FORM-001\",\n  \"nombre\": \"Duplicado\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Sección",
+      "item": [
+        {
+          "name": "Crear sección (libre)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.collectionVariables.set('idSeccion', r.idSeccion);",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Sin código de acceso', () => pm.expect(r.idCodigoAcceso).to.be.null);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/sections",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-seccion-create-01" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"SEC-01\",\n  \"idFormulario\": {{idFormulario}},\n  \"nombre\": \"Datos Generales\",\n  \"metadata\": {\n    \"orden\": 1\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear sección (ocupada por código de acceso)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Tiene código de acceso', () => pm.expect(pm.response.json().idCodigoAcceso).to.not.be.null);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/sections",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-seccion-create-02" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"SEC-02\",\n  \"idFormulario\": {{idFormulario}},\n  \"nombre\": \"Datos Económicos\",\n  \"metadata\": {\n    \"orden\": 2\n  },\n  \"idCodigoAcceso\": {{idCodigoAcceso}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar todas las secciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/sections",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Listar secciones por formulario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "var arr = pm.response.json();",
+                  "pm.test('Es array', () => pm.expect(arr).to.be.an('array'));",
+                  "pm.test('Todas pertenecen al formulario', () => {",
+                  "  arr.forEach(s => pm.expect(s.idFormulario).to.eql(parseInt(pm.collectionVariables.get('idFormulario'))));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/sections?idFormulario={{idFormulario}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections"],
+              "query": [{ "key": "idFormulario", "value": "{{idFormulario}}" }]
+            },
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Obtener sección por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('ID correcto', () => pm.expect(pm.response.json().idSeccion).to.eql(parseInt(pm.collectionVariables.get('idSeccion'))));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/sections/{{idSeccion}}",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Obtener sección — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/sections/999999",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Actualizar sección (liberar código de acceso)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Sección libre', () => pm.expect(pm.response.json().idCodigoAcceso).to.be.null);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/sections/{{idSeccion}}",
+            "header": [
+              { "key": "Content-Type",    "value": "application/json" },
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-seccion-update-01" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"SEC-01\",\n  \"nombre\": \"Datos Generales — Actualizado\",\n  \"metadata\": {\n    \"orden\": 1,\n    \"revisado\": true\n  },\n  \"idCodigoAcceso\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear sección en formulario inexistente — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/sections",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-App-Client", "value": "postman-test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"SEC-ERR\",\n  \"idFormulario\": 999999,\n  \"nombre\": \"Sección Inválida\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear sección con código duplicado en mismo formulario — 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/sections",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-App-Client", "value": "postman-test" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"SEC-01\",\n  \"idFormulario\": {{idFormulario}},\n  \"nombre\": \"Duplicado\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Limpieza",
+      "item": [
+        {
+          "name": "Eliminar sección",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/sections/{{idSeccion}}",
+            "header": [
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-seccion-delete-01" }
+            ]
+          }
+        },
+        {
+          "name": "Eliminar sección — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/sections/{{idSeccion}}",
+            "header": [
+              { "key": "X-App-Client", "value": "postman-test" }
+            ]
+          }
+        },
+        {
+          "name": "Eliminar formulario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/forms/{{idFormulario}}",
+            "header": [
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-form-delete-01" }
+            ]
+          }
+        },
+        {
+          "name": "Eliminar código de acceso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/access-codes/{{idCodigoAcceso}}",
+            "header": [
+              { "key": "X-App-Client",    "value": "postman-test" },
+              { "key": "X-Transaction-Id","value": "tx-acceso-delete-01" }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

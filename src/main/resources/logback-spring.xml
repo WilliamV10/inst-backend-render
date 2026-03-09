@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Configuración de Logback para Spring Boot.
+    Este archivo permite definir comportamientos distintos para cada perfil (dev, prod).
+-->
+<configuration>
+
+    <!-- 
+        Mapeo de propiedades desde el entorno de Spring (application.yaml o variables de sistema). 
+        Permite que Logback reconozca variables dinámicas.
+    -->
+    <springProperty scope="context" name="LOG_LEVEL_ROOT" source="logging.level.root" defaultValue="INFO"/>
+    <springProperty scope="context" name="LOG_PATH" source="logging.file.path" defaultValue="./logs/"/>
+    <springProperty scope="context" name="LOG_NAME" source="logging.file.name" defaultValue="encuestas.log"/>
+    <springProperty scope="context" name="MAX_SIZE" source="logging.logback.rollingpolicy.max-file-size" defaultValue="10MB"/>
+    <springProperty scope="context" name="MAX_HISTORY" source="logging.logback.rollingpolicy.max-history" defaultValue="30"/>
+
+    <!-- 
+        APPENDERS: Definen el DESTINO de los logs (Consola, Archivo, etc).
+    -->
+
+    <!-- 1. Consola: Muestra logs en la terminal con colores -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Formato: Fecha | Nivel | [TX_ID] [USER] | Logger | Mensaje -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%X{transactionId}] [%X{user}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. Archivo Rotativo: Escribe logs en disco y gestiona el espacio -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- Ruta actual del log activo -->
+        <file>${LOG_PATH}/${LOG_NAME}</file>
+        
+        <!-- Política de rotación: ¿Cuándo crear un nuevo archivo y cuánto guardar? -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Nombre de los archivos archivados (incluye fecha e índice) -->
+            <fileNamePattern>${LOG_PATH}/archived/${LOG_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- Tamaño máximo de cada archivo individual -->
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <!-- Días que se conservarán los archivos viejos -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        
+        <encoder>
+            <!-- Mismo formato que consola para mantener consistencia -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- 
+        PERFILES DE EJECUCIÓN: Comportamiento según el entorno activo.
+    -->
+
+    <!-- Perfil de DESARROLLO (dev) -->
+    <springProfile name="dev">
+        <!-- Log para nuestra aplicación: Nivel DEBUG para ver trazas detalladas -->
+        <logger name="sv.gob.bcr.onec.sie" level="DEBUG" />
+        
+        <!-- Hibernate: Ver las consultas SQL reales en consola -->
+        <logger name="org.hibernate.SQL" level="DEBUG" />
+        
+        <!-- Hibernate Descriptor: Ver los valores que se bindean a las consultas (?) -->
+        <logger name="org.hibernate.type.descriptor.sql" level="TRACE" />
+        
+        <!-- En dev, solo nos interesa la consola -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- Perfil de PRODUCCIÓN (prod) -->
+    <springProfile name="prod">
+        <!-- Log para nuestra aplicación: Nivel INFO (evita ruido excesivo) -->
+        <logger name="sv.gob.bcr.onec.sie" level="INFO" />
+        
+        <!-- Hibernate: Solo errores críticos para no saturar el log -->
+        <logger name="org.hibernate" level="ERROR" />
+        
+        <!-- En prod, enviamos a consola (para contenedores) y a ARCHIVO físico -->
+        <root level="WARN">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+
+</configuration>
