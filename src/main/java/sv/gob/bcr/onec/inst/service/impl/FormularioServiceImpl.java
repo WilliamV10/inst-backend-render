@@ -34,14 +34,6 @@ public class FormularioServiceImpl implements FormularioService {
     private final CodigoAccesoRepository codigoAccesoRepository;
     private final SecureRandom random = new SecureRandom();
 
-    private String generarCodigoUnico() {
-        String codigo;
-        do {
-            codigo = String.format("%06d", random.nextInt(1_000_000));
-        } while (codigoAccesoRepository.existsByCodigo(codigo));
-        return codigo;
-    }
-
     private FormularioResponse toResponse(Formulario obj) {
         return FormularioResponse.builder()
                 .idFormulario(obj.getIdFormulario())
@@ -111,6 +103,8 @@ public class FormularioServiceImpl implements FormularioService {
         return toResponse(saved);
     }
 
+    
+
     /**
      * Crea registros de Seccion y CodigoAcceso por cada sección encontrada en metadata.secciones.
      */
@@ -139,14 +133,9 @@ public class FormularioServiceImpl implements FormularioService {
                     .enEdicion(false)
                     .build();
 
-            seccion = seccionRepository.save(seccion);
+            seccionRepository.save(seccion);
 
-            // Generar código de acceso único para esta sección
-            CodigoAcceso ca = CodigoAcceso.builder()
-                    .codigo(generarCodigoUnico())
-                    .activo(true)
-                    .build();
-            codigoAccesoRepository.save(ca);
+            
         }
     }
 
@@ -190,13 +179,9 @@ public class FormularioServiceImpl implements FormularioService {
                     .enEdicion(false)
                     .build();
 
-            seccion = seccionRepository.save(seccion);
+            seccionRepository.save(seccion);
 
-            CodigoAcceso ca = CodigoAcceso.builder()
-                    .codigo(generarCodigoUnico())
-                    .activo(true)
-                    .build();
-            codigoAccesoRepository.save(ca);
+            
         }
     }
 

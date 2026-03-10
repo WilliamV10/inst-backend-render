@@ -54,11 +54,13 @@ management:
     web:
       exposure:
         include: ${ACTUATOR_EXPOSE_ENDPOINTS:health,info}
+      cors:
+        allowed-origins: ${ACTUATOR_ALLOWED_ORIGINS:*}
+        allowed-methods: ${ACTUATOR_ALLOWED_METHODS:GET}
+        allowed-headers: ${ACTUATOR_ALLOWED_HEADERS:*}
+
   endpoint:
     health:
       show-details: ${ACTUATOR_SHOW_DETAILS:never}
       probes:
         enabled: true
-  info:
-    env:
-      enabled: true
