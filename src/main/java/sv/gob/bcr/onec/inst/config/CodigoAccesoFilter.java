@@ -33,7 +33,7 @@ public class CodigoAccesoFilter extends OncePerRequestFilter {
         // Excluir Swagger UI, docs y únicamente el endpoint bulk de generación de códigos
         return path.startsWith("/swagger-ui")
                 || path.startsWith("/api-docs")
-                || path.equals("/actuator/**")
+                || path.startsWith("/actuator/")
                 || (path.equals("/api/v1/access-codes/bulk") && "POST".equalsIgnoreCase(method));
     }
 
