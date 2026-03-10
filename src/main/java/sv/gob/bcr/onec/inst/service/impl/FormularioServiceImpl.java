@@ -111,15 +111,6 @@ public class FormularioServiceImpl implements FormularioService {
         return toResponse(saved);
     }
 
-    @Override
-    @Transactional
-    public void delete(Integer id) {
-        if (!repository.existsById(id)) {
-            throw new NotFoundException("Formulario not found. id=" + id);
-        }
-        repository.deleteById(id);
-    }
-
     /**
      * Crea registros de Seccion y CodigoAcceso por cada sección encontrada en metadata.secciones.
      */
@@ -152,7 +143,6 @@ public class FormularioServiceImpl implements FormularioService {
 
             // Generar código de acceso único para esta sección
             CodigoAcceso ca = CodigoAcceso.builder()
-                    .seccion(seccion)
                     .codigo(generarCodigoUnico())
                     .activo(true)
                     .build();
@@ -203,7 +193,6 @@ public class FormularioServiceImpl implements FormularioService {
             seccion = seccionRepository.save(seccion);
 
             CodigoAcceso ca = CodigoAcceso.builder()
-                    .seccion(seccion)
                     .codigo(generarCodigoUnico())
                     .activo(true)
                     .build();

@@ -36,8 +36,4 @@ public interface FormularioApi {
     @ApiResponse(responseCode = "409", description = "Conflict - code already exists", content = @Content)
     ResponseEntity<FormularioResponse> update(@PathVariable Integer id, @Valid @RequestBody FormularioUpdateRequest request);
 
-    @Operation(summary = "Delete form")
-    @ApiResponse(responseCode = "204", description = "No Content")
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
-    ResponseEntity<Void> delete(@PathVariable Integer id);
 }

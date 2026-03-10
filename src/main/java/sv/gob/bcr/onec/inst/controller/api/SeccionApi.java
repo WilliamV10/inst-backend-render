@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import sv.gob.bcr.onec.inst.dto.request.SeccionCheckoutRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionCreateRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionSaveRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionUpdateRequest;
@@ -41,18 +40,12 @@ public interface SeccionApi {
     @ApiResponse(responseCode = "409", description = "Conflict - section code already exists in form", content = @Content)
     ResponseEntity<SeccionResponse> update(@PathVariable Integer id, @Valid @RequestBody SeccionUpdateRequest request);
 
-    @Operation(summary = "Delete section")
-    @ApiResponse(responseCode = "204", description = "No Content")
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
-    ResponseEntity<Void> delete(@PathVariable Integer id);
-
     @Operation(summary = "Checkout section for editing",
-            description = "Verifica el código de acceso y que la sección no esté en edición. " +
-                          "Si todo es correcto, bloquea la sección (en_edicion=true) y devuelve su metadata.")
+            description = "Bloquea la sección (en_edicion=true) y devuelve su metadata.")
     @ApiResponse(responseCode = "200", description = "OK - metadata de la sección")
-    @ApiResponse(responseCode = "404", description = "Sección o código de acceso no encontrado", content = @Content)
-    @ApiResponse(responseCode = "409", description = "Código inactivo o sección ya en edición", content = @Content)
-    ResponseEntity<JsonNode> checkout(@PathVariable Integer id, @Valid @RequestBody SeccionCheckoutRequest request);
+    @ApiResponse(responseCode = "404", description = "Sección no encontrada", content = @Content)
+    @ApiResponse(responseCode = "409", description = "Sección ya en edición", content = @Content)
+    ResponseEntity<JsonNode> checkout(@PathVariable Integer id);
 
     @Operation(summary = "Save section changes",
             description = "Actualiza la metadata de la sección y la libera (en_edicion=false).")

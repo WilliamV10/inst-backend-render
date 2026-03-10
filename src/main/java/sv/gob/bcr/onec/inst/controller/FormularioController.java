@@ -40,9 +40,4 @@ public class FormularioController implements FormularioApi {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
-    }
 }

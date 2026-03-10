@@ -5,17 +5,14 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sv.gob.bcr.onec.inst.dto.request.SeccionCheckoutRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionCreateRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionSaveRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionUpdateRequest;
 import sv.gob.bcr.onec.inst.dto.response.SeccionResponse;
-import sv.gob.bcr.onec.inst.entity.CodigoAcceso;
 import sv.gob.bcr.onec.inst.entity.Formulario;
 import sv.gob.bcr.onec.inst.entity.Seccion;
 import sv.gob.bcr.onec.inst.exception.ConflictException;
 import sv.gob.bcr.onec.inst.exception.NotFoundException;
-import sv.gob.bcr.onec.inst.repository.CodigoAccesoRepository;
 import sv.gob.bcr.onec.inst.repository.FormularioRepository;
 import sv.gob.bcr.onec.inst.repository.SeccionRepository;
 import sv.gob.bcr.onec.inst.service.interfaces.SeccionService;
@@ -28,7 +25,6 @@ public class SeccionServiceImpl implements SeccionService {
 
     private final SeccionRepository seccionRepository;
     private final FormularioRepository formularioRepository;
-    private final CodigoAccesoRepository codigoAccesoRepository;
 
     private SeccionResponse toResponse(Seccion obj) {
         return SeccionResponse.builder()
@@ -105,25 +101,9 @@ public class SeccionServiceImpl implements SeccionService {
 
     @Override
     @Transactional
-    public void delete(Integer id) {
-        if (!seccionRepository.existsById(id)) {
-            throw new NotFoundException("Seccion not found. id=" + id);
-        }
-        seccionRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional
-    public JsonNode checkout(Integer idSeccion, SeccionCheckoutRequest request) {
+    public JsonNode checkout(Integer idSeccion) {
         Seccion seccion = seccionRepository.findById(idSeccion)
                 .orElseThrow(() -> new NotFoundException("Seccion not found. id=" + idSeccion));
-
-        CodigoAcceso codigoAcceso = codigoAccesoRepository.findByCodigo(request.codigoAcceso())
-                .orElseThrow(() -> new NotFoundException("CodigoAcceso not found: " + request.codigoAcceso()));
-
-        if (!Boolean.TRUE.equals(codigoAcceso.getActivo())) {
-            throw new ConflictException("El código de acceso no está activo: " + request.codigoAcceso());
-        }
 
         if (Boolean.TRUE.equals(seccion.getEnEdicion())) {
             throw new ConflictException("La sección ya se encuentra en edición. id=" + idSeccion);

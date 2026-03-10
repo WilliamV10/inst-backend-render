@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sv.gob.bcr.onec.inst.controller.api.SeccionApi;
-import sv.gob.bcr.onec.inst.dto.request.SeccionCheckoutRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionCreateRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionSaveRequest;
 import sv.gob.bcr.onec.inst.dto.request.SeccionUpdateRequest;
@@ -46,15 +45,9 @@ public class SeccionController implements SeccionApi {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/{id}/checkout")
-    public ResponseEntity<JsonNode> checkout(@PathVariable Integer id, @Valid @RequestBody SeccionCheckoutRequest request) {
-        return ResponseEntity.ok(service.checkout(id, request));
+    public ResponseEntity<JsonNode> checkout(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.checkout(id));
     }
 
     @PutMapping("/{id}/save")

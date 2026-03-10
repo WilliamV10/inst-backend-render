@@ -11,5 +11,4 @@ public interface FormularioService {
     FormularioResponse getById(Integer id);
     List<FormularioResponse> list();
     FormularioResponse update(Integer id, FormularioUpdateRequest request);
-    void delete(Integer id);
 }

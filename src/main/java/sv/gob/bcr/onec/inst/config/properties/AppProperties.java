@@ -65,20 +65,4 @@ public class AppProperties {
         private String prodUrl;
     }
 
-    @Getter
-    @Setter
-    public static class Security {
-
-        /**
-         * Nombre de usuario para Basic Authentication.
-         */
-        private String username;
-
-        /**
-         * Contraseña para Basic Authentication.
-         */
-        private String password;
-    }
-
-    private final Security security = new Security();
 }

@@ -9,7 +9,6 @@ import lombok.*;
 @Schema(name = "CodigoAccesoResponse")
 public class CodigoAccesoResponse {
     private Integer idCodigoAcceso;
-    private Integer idSeccion;
     private String codigo;
     private Boolean activo;
 }

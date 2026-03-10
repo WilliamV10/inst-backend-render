@@ -53,15 +53,17 @@ public class OpenApiConfig {
                 .termsOfService("https://onec.bcr.gob.sv/terms")
                 .license(mitLicense);
 
-        SecurityScheme basicAuth = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("basic")
-                .name("basicAuth");
+        SecurityScheme accessCode = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name("X-Access-Code")
+                .description("Código de acceso de 6 dígitos registrado en el sistema");
 
         return new OpenAPI()
                 .info(info)
                 .servers(List.of(devServer, prodServer))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
-                .components(new Components().addSecuritySchemes("basicAuth", basicAuth));
+                .addSecurityItem(new SecurityRequirement().addList("X-Access-Code"))
+                .components(new Components()
+                        .addSecuritySchemes("X-Access-Code", accessCode));
     }
 }
