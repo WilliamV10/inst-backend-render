@@ -39,15 +39,16 @@ public class FormularioServiceImpl implements FormularioService {
                 .idFormulario(obj.getIdFormulario())
                 .codigo(obj.getCodigo())
                 .nombre(obj.getNombre())
+                .descripcion(obj.getDescripcion())
                 .metadata(obj.getMetadata())
                 .build();
     }
     private FormularioResponse toResponseSinJson(Formulario obj) {
-        
         return FormularioResponse.builder()
                 .idFormulario(obj.getIdFormulario())
                 .codigo(obj.getCodigo())
                 .nombre(obj.getNombre())
+                .descripcion(obj.getDescripcion())
                 .build();
     }
 
@@ -63,6 +64,7 @@ public class FormularioServiceImpl implements FormularioService {
         Formulario entity = Formulario.builder()
                 .codigo(request.codigo())
                 .nombre(request.nombre())
+                .descripcion(request.descripcion())
                 .metadata(metadata)
                 .build();
 
@@ -102,6 +104,7 @@ public class FormularioServiceImpl implements FormularioService {
 
         entity.setCodigo(request.codigo());
         entity.setNombre(request.nombre());
+        entity.setDescripcion(request.descripcion());
         entity.setMetadata(metadata);
         Formulario saved = repository.save(entity);
 

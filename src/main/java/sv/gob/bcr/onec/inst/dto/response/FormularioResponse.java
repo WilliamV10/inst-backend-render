@@ -14,5 +14,7 @@ public class FormularioResponse {
     private String codigo;
     private String nombre;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String descripcion;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private JsonNode metadata;
 }

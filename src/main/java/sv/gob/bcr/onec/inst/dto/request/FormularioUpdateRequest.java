@@ -18,6 +18,9 @@ public record FormularioUpdateRequest(
         @Schema(description = "Nombre descriptivo del formulario.", example = "Formulario de Registro")
         String nombre,
 
+        @Schema(description = "Descripción del formulario.")
+        String descripcion,
+
         @Schema(description = "Metadata adicional en formato JSON.")
         JsonNode metadata
 ) { }

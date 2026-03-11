@@ -24,6 +24,9 @@ public class Formulario {
     @Column(nullable = false, length = 255)
     private String nombre;
 
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
     private JsonNode metadata;
