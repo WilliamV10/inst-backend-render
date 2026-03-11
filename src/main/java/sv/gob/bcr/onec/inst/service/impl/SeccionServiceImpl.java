@@ -36,6 +36,14 @@ public class SeccionServiceImpl implements SeccionService {
                 .enEdicion(obj.getEnEdicion())
                 .build();
     }
+     private SeccionResponse toResponseList(Seccion obj) {
+        return SeccionResponse.builder()
+                .idSeccion(obj.getIdSeccion())
+                .codigo(obj.getCodigo())
+                .idFormulario(obj.getFormulario().getIdFormulario())
+                .nombre(obj.getNombre())
+                .build();
+    }
 
     @Override
     @Transactional
@@ -78,7 +86,7 @@ public class SeccionServiceImpl implements SeccionService {
         if (!formularioRepository.existsById(idFormulario)) {
             throw new NotFoundException("Formulario not found. id=" + idFormulario);
         }
-        return seccionRepository.findByFormulario_IdFormulario(idFormulario).stream().map(this::toResponse).toList();
+        return seccionRepository.findByFormulario_IdFormulario(idFormulario).stream().map(this::toResponseList).toList();
     }
 
     @Override
