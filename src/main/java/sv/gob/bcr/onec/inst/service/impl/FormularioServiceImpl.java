@@ -42,6 +42,14 @@ public class FormularioServiceImpl implements FormularioService {
                 .metadata(obj.getMetadata())
                 .build();
     }
+    private FormularioResponse toResponseSinJson(Formulario obj) {
+        
+        return FormularioResponse.builder()
+                .idFormulario(obj.getIdFormulario())
+                .codigo(obj.getCodigo())
+                .nombre(obj.getNombre())
+                .build();
+    }
 
     @Override
     @Transactional
@@ -77,7 +85,7 @@ public class FormularioServiceImpl implements FormularioService {
     @Override
     @Transactional(readOnly = true)
     public List<FormularioResponse> list() {
-        return repository.findAll().stream().map(this::toResponse).toList();
+        return repository.findAll().stream().map(this::toResponseSinJson).toList();
     }
 
     @Override
