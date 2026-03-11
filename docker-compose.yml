@@ -1,0 +1,95 @@
+# =============================================================================
+# docker-compose.yml — SIE Backend + PostgreSQL
+# -----------------------------------------------------------------------------
+# Levanta la base de datos y la aplicación con un solo comando:
+#
+#   docker compose up --build
+#
+# Primera ejecución: Docker crea la BD, ejecuta el script SQL de inicialización
+#   y arranca Spring Boot en cuanto la BD esté lista (health-check).
+#
+# Variables de entorno leídas desde: .env (raíz del proyecto)
+# =============================================================================
+name: sie-backend
+
+services:
+
+  # ─── Servicio de Base de Datos ────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: sie-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB:       ${DB_NAME:-censoeconomico}
+      POSTGRES_USER:     ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+
+    ports:
+      # Expone la BD en el host para herramientas externas (DBeaver, pgAdmin, etc.)
+      - "${DB_PORT:-5432}:5432"
+
+    volumes:
+      # Persistencia de datos entre reinicios
+      - postgres_data:/var/lib/postgresql/data
+      # Script de inicialización (solo se ejecuta la PRIMERA vez, si el volumen está vacío)
+      - ./bd_origen3.sql:/docker-entrypoint-initdb.d/01-bd-origen3.sql:ro
+
+    healthcheck:
+      # Spring Boot solo arranca cuando PostgreSQL acepta conexiones
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-censoeconomico}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    networks:
+      - sie-network
+
+  # ─── Servicio de Aplicación Spring Boot ──────────────────────────────────
+  app:
+    build:
+      # Contexto = raíz del proyecto → pom.xml y src/ son accesibles desde el Dockerfile
+      context: .
+      dockerfile: Dockerfile
+    container_name: sie-app
+    restart: unless-stopped
+
+    # Espera hasta que el health-check de la BD sea exitoso
+    depends_on:
+      db:
+        condition: service_healthy
+
+    # Carga todas las variables del .env
+    env_file:
+      - .env
+
+    environment:
+      # ── Sobreescrituras para entorno Docker ─────────────────────────────
+      # "localhost" no funciona dentro de un contenedor; usar el nombre del servicio
+      DB_HOST: db
+      # Eliminar las comillas que el .env puede tener en DB_SCHEMA
+      DB_SCHEMA: bd_origen3
+      # URL interna del health-check (cron job keep-alive)
+      HEALTH_CHECK_URL: "http://localhost:${PORT:-8082}${SERVER_SERVLET_CONTEXT_PATH:-/encuestas}/actuator/health"
+
+    ports:
+      - "${PORT:-8082}:${PORT:-8082}"
+
+    volumes:
+      # Logs persistentes en el host → ./logs/
+      - ./logs:/app/logs
+
+    networks:
+      - sie-network
+
+# =============================================================================
+# Volúmenes y redes
+# =============================================================================
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sie-network:
+    driver: bridge
