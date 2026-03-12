@@ -74,30 +74,41 @@ public class SeccionServiceImpl implements SeccionService {
         Seccion entity = seccionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Seccion not found. id=" + id));
 
-        // Tomar el metadata original del formulario padre y reemplazar
-        // el array "secciones" con únicamente la metadata de esta sección.
         Formulario formulario = entity.getFormulario();
-        JsonNode formularioMetadata = formulario.getMetadata();
+        JsonNode fMeta = formulario.getMetadata();
 
-        ObjectNode mergedMetadata;
-        if (formularioMetadata != null && formularioMetadata.isObject()) {
-            mergedMetadata = formularioMetadata.deepCopy();
-        } else {
-            mergedMetadata = JsonNodeFactory.instance.objectNode();
-        }
-
-        ArrayNode seccionesArray = JsonNodeFactory.instance.arrayNode();
-        seccionesArray.add(entity.getMetadata());
-        mergedMetadata.set("secciones", seccionesArray);
+        // Extraer codigo, nombre y descripcion del JSON del formulario
+        String codigoFormulario      = getTextSafe(fMeta, "codigo");
+        String nombreFormulario      = getTextSafe(fMeta, "nombre");
+        String descripcionFormulario = getTextSafe(fMeta, "descripcion");
 
         return SeccionResponse.builder()
                 .idSeccion(entity.getIdSeccion())
-                .codigo(entity.getCodigo())
                 .idFormulario(formulario.getIdFormulario())
-                .nombre(entity.getNombre())
-                .metadata(mergedMetadata)
+                .codigo(codigoFormulario)
+                .nombre(nombreFormulario)
+                .descripcion(descripcionFormulario)
+                .metadata(buildSeccionesWrapper(entity.getMetadata()))
                 .enEdicion(entity.getEnEdicion())
                 .build();
+    }
+
+    /** Envuelve el metadata de la sección en { "secciones": [ metadata ] }. */
+    private ObjectNode buildSeccionesWrapper(JsonNode seccionMetadata) {
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        if (seccionMetadata != null) {
+            array.add(seccionMetadata);
+        }
+        ObjectNode wrapper = JsonNodeFactory.instance.objectNode();
+        wrapper.set("secciones", array);
+        return wrapper;
+    }
+
+    /** Extrae un campo de texto de un JsonNode de forma segura. */
+    private String getTextSafe(JsonNode node, String field) {
+        if (node == null) return null;
+        JsonNode val = node.get(field);
+        return (val != null && val.isTextual()) ? val.asText() : null;
     }
 
     @Override

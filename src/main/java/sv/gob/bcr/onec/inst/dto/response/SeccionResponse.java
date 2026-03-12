@@ -15,6 +15,9 @@ public class SeccionResponse {
     private String codigo;
     private Integer idFormulario;
     private String nombre;
+    private String codigoFormulario;
+    private String nombreFormulario;
+    private String descripcion;
     private JsonNode metadata;
     private Boolean enEdicion;
 }

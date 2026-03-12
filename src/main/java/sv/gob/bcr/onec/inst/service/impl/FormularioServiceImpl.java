@@ -1,6 +1,7 @@
 package sv.gob.bcr.onec.inst.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,17 @@ public class FormularioServiceImpl implements FormularioService {
     public FormularioResponse getById(Integer id) {
         Formulario entity = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Formulario not found. id=" + id));
-        return toResponse(entity);
+
+        // Ensamblar metadata con las secciones actuales de BD
+        JsonNode metadataEnsamblado = ensamblarMetadataConSecciones(entity);
+
+        return FormularioResponse.builder()
+                .idFormulario(entity.getIdFormulario())
+                .codigo(entity.getCodigo())
+                .nombre(entity.getNombre())
+                .descripcion(entity.getDescripcion())
+                .metadata(metadataEnsamblado)
+                .build();
     }
 
     @Override
@@ -115,6 +126,32 @@ public class FormularioServiceImpl implements FormularioService {
     }
 
     
+
+    /**
+     * Ensambla el metadata del formulario reemplazando el array "secciones"
+     * con los metadata actuales de cada sección almacenada en BD.
+     */
+    private JsonNode ensamblarMetadataConSecciones(Formulario formulario) {
+        JsonNode original = formulario.getMetadata();
+
+        ObjectNode ensamblado;
+        if (original != null && original.isObject()) {
+            ensamblado = original.deepCopy();
+        } else {
+            ensamblado = JsonNodeFactory.instance.objectNode();
+        }
+
+        List<Seccion> seccionesActuales = seccionRepository
+                .findByFormulario_IdFormulario(formulario.getIdFormulario());
+
+        ArrayNode seccionesArray = JsonNodeFactory.instance.arrayNode();
+        for (Seccion s : seccionesActuales) {
+            seccionesArray.add(s.getMetadata());
+        }
+        ensamblado.set("secciones", seccionesArray);
+
+        return ensamblado;
+    }
 
     /**
      * Crea registros de Seccion y CodigoAcceso por cada sección encontrada en metadata.secciones.
@@ -203,16 +240,9 @@ public class FormularioServiceImpl implements FormularioService {
 
     /**
      * Construye el JSON de metadata de la sección a partir del nodo completo,
-     * excluyendo los campos "codigo" y "nombre" que ya se persisten como columnas.
+     * guardando todos los campos tal y como vienen en el JSON del formulario.
      */
     private JsonNode construirMetadataSeccion(JsonNode seccionNode) {
-        ObjectNode meta = JsonNodeFactory.instance.objectNode();
-        seccionNode.fields().forEachRemaining(entry -> {
-            String key = entry.getKey();
-            if (!"codigo".equals(key) && !"nombre".equals(key)) {
-                meta.set(key, entry.getValue());
-            }
-        });
-        return meta;
+        return seccionNode.deepCopy();
     }
 }
