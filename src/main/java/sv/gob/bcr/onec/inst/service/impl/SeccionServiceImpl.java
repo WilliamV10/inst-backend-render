@@ -1,7 +1,9 @@
 package sv.gob.bcr.onec.inst.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +73,31 @@ public class SeccionServiceImpl implements SeccionService {
     public SeccionResponse getById(Integer id) {
         Seccion entity = seccionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Seccion not found. id=" + id));
-        return toResponse(entity);
+
+        // Tomar el metadata original del formulario padre y reemplazar
+        // el array "secciones" con únicamente la metadata de esta sección.
+        Formulario formulario = entity.getFormulario();
+        JsonNode formularioMetadata = formulario.getMetadata();
+
+        ObjectNode mergedMetadata;
+        if (formularioMetadata != null && formularioMetadata.isObject()) {
+            mergedMetadata = formularioMetadata.deepCopy();
+        } else {
+            mergedMetadata = JsonNodeFactory.instance.objectNode();
+        }
+
+        ArrayNode seccionesArray = JsonNodeFactory.instance.arrayNode();
+        seccionesArray.add(entity.getMetadata());
+        mergedMetadata.set("secciones", seccionesArray);
+
+        return SeccionResponse.builder()
+                .idSeccion(entity.getIdSeccion())
+                .codigo(entity.getCodigo())
+                .idFormulario(formulario.getIdFormulario())
+                .nombre(entity.getNombre())
+                .metadata(mergedMetadata)
+                .enEdicion(entity.getEnEdicion())
+                .build();
     }
 
     @Override
