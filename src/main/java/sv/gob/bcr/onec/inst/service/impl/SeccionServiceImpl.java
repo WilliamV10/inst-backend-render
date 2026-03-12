@@ -88,18 +88,21 @@ public class SeccionServiceImpl implements SeccionService {
                 .codigo(codigoFormulario)
                 .nombre(nombreFormulario)
                 .descripcion(descripcionFormulario)
-                .metadata(buildSeccionesWrapper(entity.getMetadata()))
+                .metadata(buildSeccionesWrapper(entity.getMetadata(), codigoFormulario, nombreFormulario, descripcionFormulario))
                 .enEdicion(entity.getEnEdicion())
                 .build();
     }
 
     /** Envuelve el metadata de la sección en { "secciones": [ metadata ] }. */
-    private ObjectNode buildSeccionesWrapper(JsonNode seccionMetadata) {
+    private ObjectNode buildSeccionesWrapper(JsonNode seccionMetadata, String codigo, String nombre, String descripcion) {
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
         if (seccionMetadata != null) {
             array.add(seccionMetadata);
         }
         ObjectNode wrapper = JsonNodeFactory.instance.objectNode();
+        wrapper.put("codigo", codigo);
+        wrapper.put("nombre", nombre);
+        wrapper.put("descripcion", descripcion);
         wrapper.set("secciones", array);
         return wrapper;
     }

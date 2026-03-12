@@ -12,4 +12,5 @@ public interface SeccionRepository extends JpaRepository<Seccion, Integer> {
     boolean existsByCodigoAndFormulario_IdFormulario(String codigo, Integer idFormulario);
 
     boolean existsByCodigoAndFormulario_IdFormularioAndIdSeccionNot(String codigo, Integer idFormulario, Integer idSeccion);
+    java.util.Optional<Seccion> findByFormulario_IdFormularioAndCodigo(Integer idFormulario, String codigo);
 }
